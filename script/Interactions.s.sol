@@ -11,8 +11,7 @@ import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
 contract CreateSubscription is Script {
     function createSubscriptionUsingConfig() public returns (uint256, address) {
         HelperConfig helperConfig = new HelperConfig();
-        address vrfCoordinator = helperConfig.getConfig().vrfCoordinator; // the address for vrfCoordinator is assigned according to the helperConfig variable, which is a HelperConfig contract, which triggets getConfig(), and we only get vrfCoordinator, bc we dont need the rest
-        // we could createSubscription here, but we opt for modularity by having it as a separate function
+        address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
         address account = helperConfig.getConfig().account;
         (uint256 subId, ) = createSubscription(vrfCoordinator, account);
         return (subId, vrfCoordinator);
@@ -69,7 +68,7 @@ contract FundSubscription is Script, CodeConstants {
             vm.stopBroadcast();
         } else {
             vm.startBroadcast(account);
-            LinkToken(linkToken).transferAndCall( // transferAndCall special link token function
+            LinkToken(linkToken).transferAndCall(
                 vrfCoordinator,
                 FUND_AMOUNT,
                 abi.encode(subscriptionId)
