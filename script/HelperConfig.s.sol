@@ -50,6 +50,8 @@ contract HelperConfig is Script, CodeConstants {
         } else if (chainId == LOCAL_CHAIN_ID) {
             return getOrCreateAnvilEthConfig();
             // } else if (chainId == ARBITRUM_SEPOLIA_CHAIN_ID) {
+            //     // getOrCreateArbitrumSepoliaConfig();
+            // } else if (chainId == ZKSYNC_SEPOLIA_CHAIN_ID) {
             //     // getOrCreateZKSyncSepoliaConfig();
         } else {
             revert HelperCondig__InvalidChainId();
@@ -73,9 +75,7 @@ contract HelperConfig is Script, CodeConstants {
         });
     }
 
-    // its not pure because we'll deploy mocks
     function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
-        // checks if we set an active network config
         if (localNetworkConfig.vrfCoordinator != address(0)) {
             return localNetworkConfig;
         }
@@ -91,11 +91,11 @@ contract HelperConfig is Script, CodeConstants {
             entranceFee: 0.01 ether,
             interval: 30, // 30 secods
             vrfCoordinator: address(vrfCoordinatorV2_5Mock),
-            gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae, // doesn't matter
+            gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
             subscriptionId: 0,
             callbackGasLimit: 500000,
             link: address(linkToken),
-            account: 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38 // See Base.sol
+            account: 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38
         });
         return localNetworkConfig;
     }

@@ -86,10 +86,7 @@ contract RaffleTest is CodeConstants, Test {
         _;
     }
 
-    function testDontAllowPlayerToEnterWhenRaffleIsCalculating()
-        public
-        raffleEntered
-    {
+    function testDontAllowPlayerToEnterWhenRaffleIsCalculating() public raffleEntered {
         // Arrange
         // modifier raffleEntered
         raffle.performUpkeep(""); // no calldata on parent function, "" as blank
@@ -113,18 +110,15 @@ contract RaffleTest is CodeConstants, Test {
         raffle.enterRaffle{value: entranceFee}();
         vm.roll(block.number + 1);
 
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
 
         assert(!upkeepNeeded);
     }
 
-    function testCheckUpKeepReturnsFalseIfRaffleIsNotOpen()
-        public
-        raffleEntered
-    {
+    function testCheckUpKeepReturnsFalseIfRaffleIsNotOpen() public raffleEntered {
         raffle.performUpkeep("");
 
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
 
         assert(!upkeepNeeded);
     }
@@ -133,7 +127,7 @@ contract RaffleTest is CodeConstants, Test {
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
 
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
 
         assert(!upkeepNeeded);
     }
@@ -150,11 +144,8 @@ contract RaffleTest is CodeConstants, Test {
     //     assert(!upkeepNeeded);
     // }
 
-    function testCheckUpkeepReturnsTrueWhenParametersAreGood()
-        public
-        raffleEntered
-    {
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+    function testCheckUpkeepReturnsTrueWhenParametersAreGood() public raffleEntered {
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
 
         assert(upkeepNeeded);
     }
@@ -163,10 +154,7 @@ contract RaffleTest is CodeConstants, Test {
                              PERFORM UPKEEP
     //////////////////////////////////////////////////////////////*/
 
-    function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue()
-        public
-        raffleEntered
-    {
+    function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public raffleEntered {
         raffle.performUpkeep("");
         // technically correct is to use call: (bool sucess, ) = raffle.call(abi.encodelakskja); assert(sucess);
     }
@@ -182,12 +170,7 @@ contract RaffleTest is CodeConstants, Test {
         numPlayers = 1;
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Raffle.Raffle__upkeepNotNeeded.selector,
-                currentBalance,
-                numPlayers,
-                rState
-            )
+            abi.encodeWithSelector(Raffle.Raffle__upkeepNotNeeded.selector, currentBalance, numPlayers, rState)
         );
         raffle.performUpkeep("");
     }
@@ -200,9 +183,11 @@ contract RaffleTest is CodeConstants, Test {
         _;
     }
 
-    function testPerformUpkeepUpdatesRaffleStateAndEmitsRequestId(
-        bytes32 requestId
-    ) public raffleEntered requestIdCreated {
+    function testPerformUpkeepUpdatesRaffleStateAndEmitsRequestId(bytes32 requestId)
+        public
+        raffleEntered
+        requestIdCreated
+    {
         // modifier requestIdCreated used instead
         Raffle.RaffleState raffleState = raffle.getRaffleState();
         assert(uint256(requestId) > 0); // makes sure requestId is not blank, which means it worked
@@ -221,30 +206,21 @@ contract RaffleTest is CodeConstants, Test {
     }
 
     // stateless fuzz test
-    function testFulfillrandomWordsCanOnlyBeCalledAfterPerformUpkeep(
-        uint256 randomRequestId
-    ) public raffleEntered skipFork {
-        vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
-        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(
-            randomRequestId,
-            address(raffle)
-        );
-    }
-
-    function testFulfillrandomWordsPicksWinnerResetsSendsMoney()
+    function testFulfillrandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId)
         public
         raffleEntered
         skipFork
     {
+        vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
+    }
+
+    function testFulfillrandomWordsPicksWinnerResetsSendsMoney() public raffleEntered skipFork {
         uint256 additionalEntrants = 3;
         uint256 startingIndex = 1;
         address expectedWinner = address(1);
 
-        for (
-            uint256 i = startingIndex;
-            i < startingIndex + additionalEntrants;
-            i++
-        ) {
+        for (uint256 i = startingIndex; i < startingIndex + additionalEntrants; i++) {
             address newPlayer = address(uint160(i)); // cool cheaty way to convert any number into address
             hoax(newPlayer, 1 ether);
             raffle.enterRaffle{value: entranceFee}();
@@ -257,10 +233,7 @@ contract RaffleTest is CodeConstants, Test {
         Vm.Log[] memory entries = vm.getRecordedLogs();
         bytes32 requestId = entries[1].topics[1];
 
-        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(
-            uint256(requestId),
-            address(raffle)
-        );
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(uint256(requestId), address(raffle));
 
         address recentWinner = raffle.getRecentWinner();
         Raffle.RaffleState raffleState = raffle.getRaffleState();
