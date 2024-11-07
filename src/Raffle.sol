@@ -13,7 +13,7 @@ import {console2} from "forge-std/Script.sol";
  */
 contract Raffle is VRFConsumerBaseV2Plus {
     /* Errors */
-    error Raffle__entranceFeeWasNotMet(); // more gas efficient than require+revertStrings;
+    error Raffle__entranceFeeWasNotMet();
     error Raffle__notEnoughTimeHasPassed();
     error Raffle__winnerDidNotGetFunds();
     error Raffle__isNotOpen();
@@ -66,7 +66,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         i_callbackGasLimit = callbackGasLimit;
 
         s_lastTimeStamp = block.timestamp;
-        s_raffleState = RaffleState.OPEN; // same as RaffleState(0), but former is more readeable; // defaults contract to enum OPEN
+        s_raffleState = RaffleState.OPEN; 
     }
 
     function enterRaffle() external payable {
@@ -163,12 +163,12 @@ contract Raffle is VRFConsumerBaseV2Plus {
         /* requestId */
         uint256[] calldata randomWords
     ) internal override {
-        uint256 indexOfWinner = randomWords[0] % s_players.length; // randomWords is an array of size 1, as defined by NUM_WORDS, so we use 0
+        uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
         s_recentWinner = recentWinner;
-        s_raffleState = RaffleState.OPEN; // After winner is picked, raffle reopens
-        s_players = new address payable[](0); // resets array, otherwise, previous players would play on the next raffle again
-        s_lastTimeStamp = block.timestamp; // interval/clock restarts as well to current timestamp
+        s_raffleState = RaffleState.OPEN;
+        s_players = new address payable[](0);
+        s_lastTimeStamp = block.timestamp;
         emit RaffleWinner(s_recentWinner);
 
         (bool success,) = payable(recentWinner).call{value: address(this).balance}("");

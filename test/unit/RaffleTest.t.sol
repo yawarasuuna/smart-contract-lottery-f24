@@ -20,15 +20,15 @@ contract RaffleTest is CodeConstants, Test {
     uint256 subscriptionId;
     uint32 callbackGasLimit;
 
-    address public PLAYER = makeAddr("player"); // foundry cheatcode which allows us to makeAdresses from string
+    address public PLAYER = makeAddr("player");
     uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
 
-    event RaffleEnter(address indexed player); // events need to be copy+pasted into tests
+    event RaffleEnter(address indexed player);
     event RaffleWinner(address indexed winner);
 
     function setUp() external {
         DeployRaffle deployer = new DeployRaffle();
-        (raffle, helperConfig) = deployer.deployContractRaffle(); // deployer.deployContractRaffle(); returns 2 contracts, wejust  save them in our variables as raffle, helperConfig
+        (raffle, helperConfig) = deployer.deployContractRaffle();
         HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
         entranceFee = config.entranceFee;
         interval = config.interval;
@@ -41,8 +41,7 @@ contract RaffleTest is CodeConstants, Test {
     }
 
     function testRaffleInitializesInOpenState() public view {
-        // assert(uint256 (raffle.getRaffleState()) == 0);
-        assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN); // same as above, but more readable.
+        assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN);
     }
 
     /*//////////////////////////////////////////////////////////////
